@@ -203,7 +203,7 @@ export default function HeaderWrapper({
 }) {
   const configuredAvatar = useConfig("site.avatar");
   const avatarSrc = configuredAvatar?.trim() ? configuredAvatar : Avatar;
-  const { isMenuOpen, toggleMenu } = useMenuStore();
+  const { isMenuOpen, setMenuOpen, toggleMenu } = useMenuStore();
   const { setConsoleOpen } = useConsoleStore();
   const headerRef = useRef<HTMLElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -231,7 +231,7 @@ export default function HeaderWrapper({
       startTransition();
     } else if (message?.type === "menu-close") {
       if (isMenuOpen) {
-        toggleMenu();
+        setMenuOpen(false);
       }
     }
   });
@@ -266,6 +266,10 @@ export default function HeaderWrapper({
   useEffect(() => {
     if (pathname === previousPathname.current) return;
 
+    if (isMenuOpen) {
+      setMenuOpen(false);
+    }
+
     if (transitionState === "exiting" && showLoading) {
       // 页面已经加载完成，切换到新title
       updateTitle();
@@ -282,7 +286,14 @@ export default function HeaderWrapper({
     }
 
     previousPathname.current = pathname;
-  }, [pathname, transitionState, showLoading, updateTitle]);
+  }, [
+    pathname,
+    isMenuOpen,
+    setMenuOpen,
+    transitionState,
+    showLoading,
+    updateTitle,
+  ]);
 
   // 监听 document.title 变化（包含 Next.js 替换 <title> 节点的情况）
   useEffect(() => {
