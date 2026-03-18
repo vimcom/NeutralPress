@@ -130,6 +130,7 @@ export function EditorCore({
   const [isTableToolbarVisible, setIsTableToolbarVisible] = useState(false);
   const [showInvisibleChars, setShowInvisibleChars] = useState(false);
   const [showTableOfContents, setShowTableOfContents] = useState(true);
+  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
   const [initialContent, setInitialContent] = useState<string | undefined>(
     content,
   );
@@ -1202,6 +1203,15 @@ export function EditorCore({
     },
   ];
 
+  const supportsMobilePreviewDrawer =
+    isMobile && (editorType === "markdown" || editorType === "mdx");
+
+  useEffect(() => {
+    if (!supportsMobilePreviewDrawer && isMobilePreviewOpen) {
+      setIsMobilePreviewOpen(false);
+    }
+  }, [isMobilePreviewOpen, supportsMobilePreviewDrawer]);
+
   const toolbarDropdownTriggerClassName =
     "inline-flex h-8 items-center justify-center gap-0 rounded-md px-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
 
@@ -1697,6 +1707,8 @@ export function EditorCore({
                 }
               }
             }}
+            mobilePreviewOpen={isMobilePreviewOpen}
+            onMobilePreviewOpenChange={setIsMobilePreviewOpen}
           />
         )}
       </GridItem>
@@ -1738,20 +1750,34 @@ export function EditorCore({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
-              {statusBarActions.map((action) => (
-                <Button
-                  key={action.id}
-                  label={action.label}
-                  variant={action.variant}
-                  size="sm"
-                  onClick={action.onClick}
-                  loading={action.loading}
-                  loadingText={action.loadingText}
-                  disabled={action.disabled}
-                  icon={action.icon}
-                />
-              ))}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex shrink-0 items-center">
+                {supportsMobilePreviewDrawer && (
+                  <Button
+                    label="预览"
+                    variant="secondary"
+                    size="sm"
+                    icon={<RiEyeLine size="1.1em" />}
+                    onClick={() => setIsMobilePreviewOpen(true)}
+                  />
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2">
+                {statusBarActions.map((action) => (
+                  <Button
+                    key={action.id}
+                    label={action.label}
+                    variant={action.variant}
+                    size="sm"
+                    onClick={action.onClick}
+                    loading={action.loading}
+                    loadingText={action.loadingText}
+                    disabled={action.disabled}
+                    icon={action.icon}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         ) : (
