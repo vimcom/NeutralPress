@@ -10,28 +10,39 @@ import {
   RiUserLine,
 } from "@remixicon/react";
 
+import BrowserDateTime from "@/components/client/BrowserDateTime";
 import UniversalRenderer from "@/components/server/renderer/UniversalRenderer";
 import CMSImage from "@/components/ui/CMSImage";
 import Link from "@/components/ui/Link";
 import type { PublicProjectDetail } from "@/lib/server/project-public";
-import { formatDate, formatDateTime } from "@/lib/shared/date-format";
 import type { MediaFileInfo } from "@/lib/shared/image-utils";
 import type { ShikiTheme } from "@/lib/shared/mdx-config-shared";
 
 type ProjectDetailVariant = "page" | "modal";
 
-function formatPeriod(
-  startedAt: Date | null,
-  completedAt: Date | null,
-): string | null {
-  const start = formatDate(startedAt, "未记录");
-  const end = completedAt ? formatDate(completedAt, "未记录") : "至今";
-
-  if (start === "未记录" && end === "至今") {
+function renderPeriod(
+  startedAt: Date | string | null,
+  completedAt: Date | string | null,
+): React.ReactNode {
+  if (!startedAt && !completedAt) {
     return null;
   }
 
-  return `${start} - ${end}`;
+  return (
+    <>
+      <BrowserDateTime value={startedAt} precision="date" fallback="未记录" />
+      {" - "}
+      {completedAt ? (
+        <BrowserDateTime
+          value={completedAt}
+          precision="date"
+          fallback="未记录"
+        />
+      ) : (
+        "至今"
+      )}
+    </>
+  );
 }
 
 function formatLinkLabel(link: string, index: number): string {
@@ -73,7 +84,7 @@ export function ProjectDetailHeader({
 }: ProjectDetailHeaderProps) {
   const cover = project.coverImages[0] ?? null;
   const authorName = project.author.nickname || project.author.username;
-  const periodText = formatPeriod(project.startedAt, project.completedAt);
+  const periodContent = renderPeriod(project.startedAt, project.completedAt);
   const containerClassName = variant === "page" ? "" : "mx-auto max-w-6xl";
   const statusBadge = getProjectStatusBadge(project.status);
   const heroRootClassName =
@@ -99,9 +110,9 @@ export function ProjectDetailHeader({
           <div className="flex flex-wrap items-center gap-2">
             <span className="flex items-center gap-1">
               <RiCalendarLine size="1em" />
-              <span>
-                {formatDateTime(project.publishedAt || project.createdAt)}
-              </span>
+              <BrowserDateTime
+                value={project.publishedAt || project.createdAt}
+              />
             </span>
             <span>/</span>
             <span className="flex items-center gap-1">
@@ -218,10 +229,10 @@ export function ProjectDetailHeader({
                   {project.license}
                 </span>
               ) : null}
-              {periodText ? (
+              {periodContent ? (
                 <span className="flex items-center gap-1">
                   <RiCalendarLine size="1.2em" />
-                  {periodText}
+                  {periodContent}
                 </span>
               ) : null}
               {statusBadge ? (
@@ -313,12 +324,15 @@ export function ProjectDetailBody({
           <div className={footerMetaRowClassName}>
             <span className="flex items-center gap-1">
               <RiCalendarLine size="1em" />
-              发布于 {formatDateTime(project.publishedAt || project.createdAt)}
+              发布于{" "}
+              <BrowserDateTime
+                value={project.publishedAt || project.createdAt}
+              />
             </span>
             <span>/</span>
             <span className="flex items-center gap-1">
               <RiTimeLine size="1em" />
-              编辑于 {formatDateTime(project.updatedAt)}
+              编辑于 <BrowserDateTime value={project.updatedAt} />
             </span>
             <span>/</span>
             <span>{project.title}</span>

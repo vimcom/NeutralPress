@@ -6,14 +6,14 @@ import {
   RiTimeLine,
 } from "@remixicon/react";
 
+import BrowserDateTime from "@/components/client/BrowserDateTime";
 import CMSImage from "@/components/ui/CMSImage";
 import Link from "@/components/ui/Link";
-import { formatDate } from "@/lib/shared/date-format";
 
 interface PostCardProps {
   title: string | React.ReactNode;
   slug?: string;
-  date?: string;
+  date?: Date | string | null;
   category?: { name: string; slug: string }[];
   tags?: { name: string; slug: string }[];
   cover?:
@@ -112,7 +112,7 @@ export default function PostCard({
               data-fade
             >
               <RiTimeLine size={"1em"} />
-              <span>{formatDate(date)}</span>
+              <BrowserDateTime value={date} precision="date" />
             </span>
           )}
           {category?.length !== 0 && (

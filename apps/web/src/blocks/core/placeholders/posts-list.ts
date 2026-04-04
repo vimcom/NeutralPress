@@ -69,26 +69,12 @@ export async function postsListInterpolator(
   const firstPostNum = pageSize * (page - 1) + 1;
   const lastPostNum = Math.min(pageSize * page, totalPosts);
 
-  // 格式化日期
-  // firstPublishAt: 本地日期格式，如 "2025年 11 月 4 日"
-  const firstPublishAtFormatted = firstPost?.publishedAt
-    ? new Date(firstPost.publishedAt)
-        .toLocaleDateString("zh-CN", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
-        .replace(/年/, " 年 ")
-        .replace(/月/, " 月 ")
-        .replace(/日/, " 日")
-    : "未知日期";
-
   return {
     postsList, // 用于随机链接
     postsListPage: page,
     postsListTotalPage: totalPages,
     postsListFirstPage: firstPostNum,
     postsListLastPage: lastPostNum,
-    firstPublishAt: firstPublishAtFormatted,
+    firstPublishAt: firstPost?.publishedAt?.toISOString() || "未知日期",
   };
 }

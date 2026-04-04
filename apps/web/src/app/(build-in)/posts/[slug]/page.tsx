@@ -12,6 +12,7 @@ import {
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 
+import BrowserDateTime from "@/components/client/BrowserDateTime";
 import CommentCount from "@/components/client/features/posts/CommentCount";
 import CommentsSection from "@/components/client/features/posts/CommentsSection";
 import PostToc from "@/components/client/features/posts/PostToc";
@@ -213,22 +214,15 @@ async function renderPostPage(slug: string) {
     notFound();
   }
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return "";
-    return new Date(date).toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const effectiveLicense = resolvePostLicense(post.license, defaultLicense);
   const licenseStatementSegments = formatPostLicenseStatementSegments(
     licenseTextTemplate,
     effectiveLicense,
   );
+  const publishedDisplayDate = new Date(
+    post.publishedAt || post.createdAt,
+  ).toISOString();
+  const updatedDisplayDate = new Date(post.updatedAt).toISOString();
 
   // 生成分类链接路径
   const generateCategoryLink = (slugArray: string[], index: number) => {
@@ -332,7 +326,7 @@ async function renderPostPage(slug: string) {
         >
           <span className="flex items-center gap-1">
             <RiCalendarLine size={"1em"} />
-            <span>{formatDate(post.publishedAt || post.createdAt)}</span>
+            <BrowserDateTime value={publishedDisplayDate} />
           </span>
           <span>/</span>
           <span className="flex items-center gap-1">
@@ -480,12 +474,12 @@ async function renderPostPage(slug: string) {
                 <div className="flex flex-wrap gap-4 ">
                   <span className="flex gap-1 items-center">
                     <RiCalendarLine size="1.1em" />
-                    发布于 {formatDate(post.publishedAt!)}
+                    发布于 <BrowserDateTime value={publishedDisplayDate} />
                   </span>
                   <span>{"/"}</span>
                   <span className="flex gap-1 items-center">
                     <RiEditLine size="1.1em" />
-                    编辑于 {formatDate(post.updatedAt)}
+                    编辑于 <BrowserDateTime value={updatedDisplayDate} />
                   </span>
                   <span>{"/"}</span>
                   <span>{post.title}</span>
@@ -601,11 +595,10 @@ async function renderPostPage(slug: string) {
                               <div className="w-full mt-auto pt-4 font-mono text-xs text-muted-foreground">
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 uppercase">
                                   {recommendedPost.publishedAt && (
-                                    <span>
-                                      {formatDate(
-                                        recommendedPost.publishedAt,
-                                      ).slice(0, 10)}
-                                    </span>
+                                    <BrowserDateTime
+                                      value={recommendedPost.publishedAt}
+                                      precision="date"
+                                    />
                                   )}
                                   {recommendedPost.categories.length > 0 && (
                                     <span>
