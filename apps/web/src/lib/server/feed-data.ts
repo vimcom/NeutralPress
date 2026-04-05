@@ -139,7 +139,7 @@ function prependFeedLead(content: string, postUrl: string): string {
 
 export async function getFeedData(): Promise<FeedData> {
   "use cache";
-  cacheTag("posts", "config");
+  cacheTag("posts/list", "config");
   cacheLife("max");
 
   const [

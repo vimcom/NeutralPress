@@ -1,6 +1,5 @@
 import { Feed } from "feed";
 import { cacheLife, cacheTag } from "next/cache";
-import { notFound } from "next/navigation";
 
 import { getFeedData } from "@/lib/server/feed-data";
 
@@ -61,7 +60,7 @@ function injectFeedStylesheet(xml: string): string {
 
 async function generateRssFeed(): Promise<string | null> {
   "use cache";
-  cacheTag("posts", "config");
+  cacheTag("posts/list", "config");
   cacheLife("max");
 
   const { posts, siteConfig, rssConfig } = await getFeedData();
@@ -124,7 +123,12 @@ export async function GET() {
   const rss = await generateRssFeed();
 
   if (rss === null) {
-    return notFound();
+    return new Response("RSS feed is disabled", {
+      status: 404,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+      },
+    });
   }
 
   return new Response(rss, {
